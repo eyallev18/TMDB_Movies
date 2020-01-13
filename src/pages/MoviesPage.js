@@ -20,53 +20,53 @@ export default class MoviesPage extends Component {
   }
 
   searchMovies(searchText) {
-    // let newActorSearchResults = [];
-    // for (var i = 0; i < this.state.actorSearchResults.length; i++) {
-    //     newActorSearchResults.push(this.state.actorSearchResults[i])
-    // }
-    // newActorSearchResults.push(searchText);
-
-    // this.setState({
-    //     actorSearchResults: newActorSearchResults
-    // })
-
     if (searchText === "") {
       this.setState({
-        MovieSearchResults: [],
-        MovieSearchResultStrings: []
+        movieSearchResults: [],
+        movieSearchResultStrings: []
       });
     } else {
       const searchURL =
         "https://api.themoviedb.org/3/search/movie?api_key=77cc9523668c3dd019a1c3282e7b7141&query=" +
         searchText;
-      Axios.get(searchURL).then(response => {
+
+      Axios.get(searchURL).then(response1 => {
         this.setState({
-          movieSearchResults: response.data.results,
-          movieSearchResultStrings: response.data.results.map(
+          movieSearchResults: response1.data.results,
+          movieSearchResultStrings: response1.data.results.map(
             result => result.title
           )
         });
       });
-
-      // this.setState({
-      //     actorSearchResults: this.state.actorSearchResults.concat(searchText)
-      // })
     }
   }
 
   addMovie(index) {
+    const details =
+      "https://api.themoviedb.org/3/movie/" +
+      this.state.movieSearchResults[index].id +
+      "?api_key=77cc9523668c3dd019a1c3282e7b7141&language=en-US";
+    const promise1 = Axios.get(details);
+    const promises = [promise1];
+    Promise.all(promises).then(response => {
+      this.setState({
+        movieDetailsResult: response[0].data.runtime
+      });
+    });
     // Here I could call another function from TMDB to get additional actor data
 
     const newMovie = new MovieModel(
       this.state.movieSearchResults[index].title,
       this.state.movieSearchResults[index].poster_path,
-      this.state.movieSearchResults[index].id
+      this.state.movieSearchResults[index].id,
+      this.state.movieDetailsResult
     );
 
     this.setState({
       movies: this.state.movies.concat(newMovie),
       movieSearchResults: [],
-      movieSearchResultStrings: []
+      movieSearchResultStrings: [],
+      movieDetailsResult: []
     });
   }
 

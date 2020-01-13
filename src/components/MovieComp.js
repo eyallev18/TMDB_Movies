@@ -17,7 +17,7 @@ export default class MovieComp extends Component {
           <Card.Img variant="top" src={movie.posterURL} />
           <Card.Body>
             <Card.Title>
-              {movie.title} {movie.id}
+              {movie.title} {movie.id} {movie.runtime}
             </Card.Title>
           </Card.Body>
         </Card>
