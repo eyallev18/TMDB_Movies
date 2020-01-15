@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Card } from "react-bootstrap";
+import "./MovieComp.css";
 
 // Props
 // actor. an instance of ActorModel
@@ -17,7 +18,21 @@ export default class MovieComp extends Component {
           <Card.Img variant="top" src={movie.posterURL} />
           <Card.Body>
             <Card.Title>
-              {movie.title} {movie.id} {movie.runtime}
+              <span className="titles">Title : </span>
+              {"  " + movie.title},
+              <br />
+              <span className="titles">Length :</span>{" "}
+              {"  " + movie.runtime + " "} minutes,
+              <br /> <span className="titles">Actor 1st :</span>
+              {"  " + movie.firstMainStars}, <br />
+              <span className="titles">Actor 2nd :</span>
+              {"  " + movie.secondMainStars}
+              <br />
+              <span className="titles"> Actor 3th :</span>
+              {"  " + movie.thirdMainStars}.
+              <br />
+              <span className="titles">Director :</span>
+              {"  " + movie.director}
             </Card.Title>
           </Card.Body>
         </Card>

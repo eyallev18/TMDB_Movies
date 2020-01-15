@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import SearchBox from "../components/SearchBox";
-import { Container, Row, Col, Badge } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import MovieComp from "../components/MovieComp";
 import MovieModel from "../model/MovieModel";
 import Axios from "axios";
@@ -23,7 +23,9 @@ export default class MoviesPage extends Component {
     if (searchText === "") {
       this.setState({
         movieSearchResults: [],
-        movieSearchResultStrings: []
+        movieSearchResultStrings: [],
+        movieDetailsResult: [],
+        movieDetailsResultStrings: []
       });
     } else {
       const searchURL =
@@ -35,55 +37,47 @@ export default class MoviesPage extends Component {
           movieSearchResults: response1.data.results,
           movieSearchResultStrings: response1.data.results.map(
             result => result.title
-          )
+          ),
+          movieDetailsResult: response1.data.results.map(result => result.id)
         });
       });
-    }
-  }
 
-  async addMovie(index) {
-    const details =
-      "https://api.themoviedb.org/3/movie/" +
-      this.state.movieSearchResults[index].id +
-      "/credits?api_key=77cc9523668c3dd019a1c3282e7b7141&language=en-US";
-    const credits =
-      "https://api.themoviedb.org/3/movie/" +
-      this.state.movieSearchResults[index].id +
-      "?api_key=77cc9523668c3dd019a1c3282e7b7141&language=en-US";
-    const promise1 = await Axios.get(details);
-    const promise2 = await Axios.get(credits);
-    const promises = [promise1, promise2];
-    Promise.all(promises).then(responses => {
-      this.setState({
-        movieDetailsResult: promises[1].data.runtime,
-        movieCreditsResult: promises[0].data.cast[0].name
-      });
-    });
-    // Here I could call another function from TMDB to get additional actor data
-
-    // var director = promises[0].data.crew.map(person => {
-    //   if (person.department === "Directing") {
-    //     return (person.name + " , ");
-    //   }
-    // });
-
-    var director = "";
-    for (let i = 0; i < promises[0].data.crew.length; i++) {
-      if (promises[0].data.crew[i].department === "Directing") {
-        //director.replace(".", "  , ");
-        director = promises[0].data.crew[i].name + " .";
-        break;
+      for (var i = 0; i < this.state.movieSearchResultStrings.length; i++) {
+        const details =
+          "https://api.themoviedb.org/3/movie/" +
+          this.state.movieSearchResults[i].id +
+          "?api_key=77cc9523668c3dd019a1c3282e7b7141&language=en-US";
+        const promise1 = Axios.get(details);
+        const promises = [promise1];
+        Promise.all(promises).then(response => {
+          this.setState({
+            movieDetailsResultStrings: response[0].data.runtime.map(
+              result => result
+            )
+          });
+        });
       }
     }
+  }
+  addMovie(index) {
+    // const details =
+    //   "https://api.themoviedb.org/3/movie/" +
+    //   this.state.movieSearchResults[index].id +
+    //   "?api_key=77cc9523668c3dd019a1c3282e7b7141&language=en-US";
+    // const promise1 = Axios.get(details);
+    // const promises = [promise1];
+    // Promise.all(promises).then(response => {
+    //   this.setState({
+    //     movieDetailsResult: response[0].data.runtime
+    //   });
+    // });
+    // Here I could call another function from TMDB to get additional actor data
+
     const newMovie = new MovieModel(
       this.state.movieSearchResults[index].title,
       this.state.movieSearchResults[index].poster_path,
       this.state.movieSearchResults[index].id,
-      promises[1].data.runtime,
-      promises[0].data.cast[0].name,
-      promises[0].data.cast[1].name,
-      promises[0].data.cast[2].name,
-      director
+      this.state.movieDetailsResultStrings[index]
     );
 
     this.setState({
@@ -106,11 +100,6 @@ export default class MoviesPage extends Component {
     return (
       <div>
         <Container>
-          <h1>
-            <Badge variant="success" className="m-2 text-center">
-              Searcing Movies to get details in TMDB{" "}
-            </Badge>
-          </h1>
           <SearchBox
             searchPlaceholder="Search Movie"
             results={movieSearchResultStrings}
